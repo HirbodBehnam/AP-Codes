@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 
 public class Q4 {
-    private static final Pattern MessagePattern = Pattern.compile("(?=(" + "Message\\{ messageId=%[0-9 ]-[QWERYUIPLKJGFDZXCVBN][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn]\\$([0-9][0-9]|[0-9][0-9][0-9][0-9])%, from=User\\{ firstName='[^']*', isBot=(true|false), lastName='[^']*', userName='[^']*' }, date=[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9], text='[^']*', location=[-.0-9]+ }" + "))");
+    private static final Pattern MessagePattern = Pattern.compile("(?=(" + "Message\\{ messageId=%[0-9 ]+-[QWERYUIPLKJGFDZXCVBN][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn]\\$([0-9][0-9]|[0-9][0-9][0-9][0-9])%, from=User\\{ firstName='[^']+', isBot=(true|false), lastName='[^']*', userName='[^']*' }, date=[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9], text='[^']*', location=[-.0-9]+ }" + "))");
     private static final Pattern MessageExtractor = Pattern.compile("firstName='([^']*)'.*isBot=([tf]).*lastName='([^']*)'.*userName='([^']*)'.*date=([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]).*text='([^']*)'.*location=([-.0-9]+)");
     private static final SimpleDateFormat MessageDateFormatParse = new SimpleDateFormat("yyyyMMddHHmmss");
     private static final SimpleDateFormat MessageDateFormatResult = new SimpleDateFormat("HH:mm");
@@ -52,7 +52,12 @@ public class Q4 {
             Matcher extractor = MessageExtractor.matcher(message);
             while(extractor.find()) {
                 // Check the location
-                double messageLocation = Double.parseDouble(extractor.group(7));
+                double messageLocation;
+                try {
+                    messageLocation = Double.parseDouble(extractor.group(7));
+                } catch (NumberFormatException ex) {
+                    continue;
+                }
                 if (Math.abs(messageLocation - location) > 1)
                     continue;
                 // Check date
@@ -66,8 +71,7 @@ public class Q4 {
                     return;
                 }
                 // Check ID
-                String id = extractor.group(4);
-                if(id.length() > 32 || id.length() < 5 || !isAlphabet(id.charAt(0)) || id.charAt(id.length() - 1) == '_')
+                if(!validUsername(extractor.group(4)))
                     continue;
                 // Now create a message object
                 messages.add(new Message(extractor.group(1) + " " + extractor.group(3), extractor.group(6), extractor.group(2).equals("t"), messageDate));
@@ -105,6 +109,22 @@ public class Q4 {
                     "_" + MessageDateFormatResult.format(messageDate) + "_\n" +
                     "--------------------";
         }
+    }
+    private static boolean validUsername(String username) {
+        // Empty usernames are valid
+        if (username.equals(""))
+            return true;
+        // Check the length
+        if (username.length() < 5 || username.length() > 32)
+            return false;
+        // Check the chars
+        if (!username.matches("[a-zA-Z0-9_]+"))
+            return false;
+        // Check last and first char
+        if (!isAlphabet(username.charAt(0)) || username.charAt(username.length() - 1) == '_')
+            return false;
+        // Valid!
+        return true;
     }
     private static boolean isAlphabet(char c) {
         return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
