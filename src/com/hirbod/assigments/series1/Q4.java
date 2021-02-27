@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
  */
 
 public class Q4 {
-    private static final Pattern MessagePattern = Pattern.compile("(?=(" + "Message\\{ messageId=%[0-9 ]*-[QWERYUIPLKJGFDZXCVBN][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn]\\$([0-9][0-9]|[0-9][0-9][0-9][0-9])%, from=User\\{ firstName='[^']+', isBot=(true|false), lastName='[^']*', userName='[^']*' }, date=[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9], text='[^']*', location=-?[0-9]\\d*(\\.\\d+)? }" + "))");
-    private static final Pattern MessageExtractor = Pattern.compile("firstName='([^']*)'.*isBot=(true|false).*lastName='([^']*)'.*userName='([^']*)'.*date=([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]).*text='([^']*)'.*location=([-.0-9]+)");
+    private static final Pattern MessagePattern = Pattern.compile("(?=(" + "Message\\{ messageId=%[0-9 ]*-[QWERYUIPLKJGFDZXCVBN][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn]\\$([0-9][0-9]|[0-9][0-9][0-9][0-9])%, from=User\\{ firstName='[^']+', isBot=(true|false), lastName='[^']*', userName='[^']*' }, date=[0-9]{14}, text='[^']*', location=-?[0-9]\\d*(\\.\\d+)? }" + "))");
+    private static final Pattern MessageExtractor = Pattern.compile("firstName='([^']*)'.*isBot=(true|false).*lastName='([^']*)'.*userName='([^']*)'.*date=([0-9]{14}).*text='([^']*)'.*location=(-?[0-9]\\d*(\\.\\d+)?)");
     private static final SimpleDateFormat MessageDateFormatParse = new SimpleDateFormat("yyyyMMddHHmmss");
     private static final SimpleDateFormat MessageDateFormatResult = new SimpleDateFormat("HH:mm");
     public static void main(String[] args) {
@@ -57,7 +57,7 @@ public class Q4 {
                 double messageLocation;
                 messageLocation = Double.parseDouble(extractor.group(7));
                 if (Math.abs(messageLocation - location) > 1)
-                    continue;
+                    break;
                 // Check date
                 Date messageDate;
                 try {
@@ -65,8 +65,7 @@ public class Q4 {
                     if (messageDate.before(startDate) || messageDate.after(endDate))
                         continue;
                 } catch (ParseException ex) { // do we even reach here?
-                    System.out.println(ex.getMessage());
-                    return;
+                    throw new RuntimeException();
                 }
                 // Check ID
                 if(!validUsername(extractor.group(4)))

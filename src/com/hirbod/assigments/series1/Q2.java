@@ -12,34 +12,31 @@ import java.util.Scanner;
  */
 
 public class Q2 {
+
+    // LOC of main without comments: 25
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int days = scanner.nextInt();
         scanner.nextLine(); // go to next line
         // Create two hashsets. First one represents the line before and the next one represents the shared names between the before and this
         HashSet<String> lineBefore = new HashSet<>();
-        // At very very first read the first line
-        {
-            String[] words = scanner.nextLine().split(" ");
-            for (String word : words)
-                lineBefore.add(word.toLowerCase());
-        }
+        // At very very first read the first line and save everything in set
+        for (String word : scanner.nextLine().split(" "))
+            lineBefore.add(word.toLowerCase());
         // Reach each line
         for (int i = 1; i < days; i++) {
             HashSet<String> currentLine = new HashSet<>();
             String[] words = scanner.nextLine().split(" ");
             for (String word : words)
-                if (lineBefore.contains(word.toLowerCase()))
+                if (lineBefore.contains(word.toLowerCase())) // only add stuff we have seen before
                     currentLine.add(word.toLowerCase());
             // Replace the current line with line before
             lineBefore = currentLine;
         }
         // Now remove other words
-        for (int i = 0; i < days; i++) {
-            String[] words = scanner.nextLine().split(" ");
-            for (String word : words)
+        for (int i = 0; i < days; i++)
+            for (String word : scanner.nextLine().split(" "))
                 lineBefore.remove(word.toLowerCase());
-        }
         // Print them
         if (lineBefore.size() == 0) {
             System.out.println("Nothing in common");
