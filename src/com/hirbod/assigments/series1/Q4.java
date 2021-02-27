@@ -18,11 +18,13 @@ import java.util.regex.Pattern;
  * https://stackoverflow.com/questions/5705111/how-to-get-all-substring-for-a-given-regex
  * https://stackoverflow.com/questions/237061/using-regular-expressions-to-extract-a-value-in-java
  * https://stackoverflow.com/questions/4662215/how-to-extract-a-substring-using-regex
+ * https://stackoverflow.com/questions/2811031/decimal-or-numeric-values-in-regular-expression-validation
+ * https://stackoverflow.com/questions/4047808/what-is-the-best-way-to-tell-if-a-character-is-a-letter-or-number-in-java-withou/4047836
  */
 
 public class Q4 {
-    private static final Pattern MessagePattern = Pattern.compile("(?=(" + "Message\\{ messageId=%[0-9 ]+-[QWERYUIPLKJGFDZXCVBN][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn]\\$([0-9][0-9]|[0-9][0-9][0-9][0-9])%, from=User\\{ firstName='[^']+', isBot=(true|false), lastName='[^']*', userName='[^']*' }, date=[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9], text='[^']*', location=[-.0-9]+ }" + "))");
-    private static final Pattern MessageExtractor = Pattern.compile("firstName='([^']*)'.*isBot=([tf]).*lastName='([^']*)'.*userName='([^']*)'.*date=([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]).*text='([^']*)'.*location=([-.0-9]+)");
+    private static final Pattern MessagePattern = Pattern.compile("(?=(" + "Message\\{ messageId=%[0-9 ]*-[QWERYUIPLKJGFDZXCVBN][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn][qweryuiplkjgfdzxcvbn]\\$([0-9][0-9]|[0-9][0-9][0-9][0-9])%, from=User\\{ firstName='[^']+', isBot=(true|false), lastName='[^']*', userName='[^']*' }, date=[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9], text='[^']*', location=-?[0-9]\\d*(\\.\\d+)? }" + "))");
+    private static final Pattern MessageExtractor = Pattern.compile("firstName='([^']*)'.*isBot=(true|false).*lastName='([^']*)'.*userName='([^']*)'.*date=([0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]).*text='([^']*)'.*location=([-.0-9]+)");
     private static final SimpleDateFormat MessageDateFormatParse = new SimpleDateFormat("yyyyMMddHHmmss");
     private static final SimpleDateFormat MessageDateFormatResult = new SimpleDateFormat("HH:mm");
     public static void main(String[] args) {
@@ -53,11 +55,7 @@ public class Q4 {
             while(extractor.find()) {
                 // Check the location
                 double messageLocation;
-                try {
-                    messageLocation = Double.parseDouble(extractor.group(7));
-                } catch (NumberFormatException ex) {
-                    continue;
-                }
+                messageLocation = Double.parseDouble(extractor.group(7));
                 if (Math.abs(messageLocation - location) > 1)
                     continue;
                 // Check date
@@ -74,7 +72,7 @@ public class Q4 {
                 if(!validUsername(extractor.group(4)))
                     continue;
                 // Now create a message object
-                messages.add(new Message(extractor.group(1) + " " + extractor.group(3), extractor.group(6), extractor.group(2).equals("t"), messageDate));
+                messages.add(new Message(extractor.group(1) + " " + extractor.group(3), extractor.group(6), extractor.group(2).equals("true"), messageDate));
             }
         }
         // Print messages
@@ -85,6 +83,10 @@ public class Q4 {
                 System.out.println(messages.get(i).toString());
         }
     }
+
+    /**
+     * Represents a message
+     */
     private static class Message {
         private final String name;
         private final String text;
@@ -97,6 +99,10 @@ public class Q4 {
             this.messageDate = messageDate;
         }
 
+        /**
+         * Is this message been sent from a bot?
+         * @return True if bot
+         */
         public boolean isBot() {
             return this.isBot;
         }
@@ -110,6 +116,12 @@ public class Q4 {
                     "--------------------";
         }
     }
+
+    /**
+     * Checks if a username is valid or not
+     * @param username The username to check
+     * @return True if valid; Otherwise false
+     */
     private static boolean validUsername(String username) {
         // Empty usernames are valid
         if (username.equals(""))
@@ -121,12 +133,9 @@ public class Q4 {
         if (!username.matches("[a-zA-Z0-9_]+"))
             return false;
         // Check last and first char
-        if (!isAlphabet(username.charAt(0)) || username.charAt(username.length() - 1) == '_')
+        if (!Character.isLetter(username.charAt(0)) || username.charAt(username.length() - 1) == '_')
             return false;
         // Valid!
         return true;
-    }
-    private static boolean isAlphabet(char c) {
-        return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
     }
 }
