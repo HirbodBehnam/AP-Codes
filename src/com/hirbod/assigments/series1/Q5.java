@@ -20,172 +20,162 @@ public class Q5 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            String command = scanner.next();
-            switch (command) {
-                case "END": // end the program
-                    return;
-                case "ADD": // add doc
-                    switch (scanner.next()) {
-                        case "DOC": { // create a new doc
-                            String name = scanner.next();
-                            scanner.nextLine(); // skip command line
-                            String content = scanner.nextLine();
-                            // Content and write
-                            docs.put(name, fixContent(content)); // this command overwrites as well
-                        }
-                        break;
-                        case "WORD": {
-                            String name = scanner.next();
-                            String word = scanner.next();
-                            if (name.equals("-ALL")) {
-                                for (StringBuilder doc : docs.values()) {
-                                    doc.append(word);
-                                }
-                            } else if (docs.containsKey(name)) {
-                                docs.get(name).append(word);
-                            } else {
-                                System.out.println(InvalidFile);
+            String[] command = scanner.nextLine().split(" ");
+            try {
+                switch (command[0]) {
+                    case "END": // end the program
+                        return;
+                    case "ADD": // add doc
+                        switch (command[1]) {
+                            case "DOC": { // create a new doc
+                                String name = command[2];
+                                String content = scanner.nextLine();
+                                // Content and write
+                                docs.put(name, fixContent(content)); // this command overwrites as well
                             }
-                            scanner.nextLine(); // skip to newline
-                        }
-                        break;
-                        default:
-                            System.out.println(InvalidCommand);
-                            scanner.nextLine();
                             break;
-                    }
-                    break;
-                case "RMV":
-                    switch (scanner.next()) {
-                        case "DOC": { // remove the doc
-                            String name = scanner.next();
-                            if (docs.containsKey(name))
-                                docs.remove(name);
-                            else
-                                System.out.println(InvalidFile);
-                            scanner.nextLine(); // skip to newline
-                        }
-                        break;
-                        case "WORD": {
-                            String name = scanner.next();
-                            String wordToRemove = scanner.next();
-                            if (name.equals("-ALL")) {
-                                for (Map.Entry<String, StringBuilder> entry : docs.entrySet()) {
-                                    name = entry.getKey();
-                                    StringBuilder doc = entry.getValue();
-                                    docs.replace(name, remove(doc, wordToRemove));
-                                }
-                            } else if (docs.containsKey(name)) {
-                                docs.replace(name, remove(docs.get(name), wordToRemove));
-                            } else {
-                                System.out.println(InvalidFile);
-                            }
-                            scanner.nextLine(); // skip to newline
-                        }
-                        break;
-                        default:
-                            System.out.println(InvalidCommand);
-                            scanner.nextLine();
-                            break;
-                    }
-                    break;
-                case "RPLC": { // Replace words
-                    String name = scanner.next();
-                    String[] wordsToReplace = scanner.next().split(",");
-                    String toReplaceWord = scanner.next();
-                    if (name.equals("-ALL")) {
-                        for (Map.Entry<String, StringBuilder> entry : docs.entrySet()) {
-                            name = entry.getKey();
-                            StringBuilder doc = entry.getValue();
-                            docs.replace(name, replace(doc, wordsToReplace, toReplaceWord));
-                        }
-                    } else if (docs.containsKey(name)) {
-                        docs.replace(name, replace(docs.get(name), wordsToReplace, toReplaceWord));
-                    } else {
-                        System.out.println(InvalidFile);
-                    }
-                    scanner.nextLine(); // skip to newline
-                }
-                break;
-                case "FIND": {
-                    switch (scanner.next()) {
-                        case "REP": {
-                            String name = scanner.next();
-                            String string = scanner.next();
-                            if (docs.containsKey(name)) {
-                                int lastIndex = 0;
-                                int count = 0;
-                                while (lastIndex != -1) {
-                                    lastIndex = docs.get(name).indexOf(string, lastIndex);
-                                    if (lastIndex != -1) {
-                                        count++;
-                                        lastIndex++;
+                            case "WORD": {
+                                String name = command[2];
+                                String word = command[3];
+                                if (name.equals("-ALL")) {
+                                    for (StringBuilder doc : docs.values()) {
+                                        doc.append(word);
                                     }
-                                }
-                                System.out.printf("%s is repeated %d times in %s\n", string, count, name);
-                            } else {
-                                System.out.println(InvalidFile);
-                            }
-                            scanner.nextLine(); // skip to newline
-                        }
-                        break;
-                        case "MIRROR": {
-                            String name = scanner.next();
-                            String c = scanner.next();
-                            if (docs.containsKey(name)) {
-                                long count = countMirrors(docs.get(name), c);
-                                System.out.printf("%d mirror words!\n", count);
-                            } else {
-                                System.out.println(InvalidFile);
-                            }
-                            scanner.nextLine(); // skip to newline
-                        }
-                        break;
-                        case "ALPHABET": {
-                            if (scanner.next().equals("WORDS")) {
-                                String name = scanner.next();
-                                if (docs.containsKey(name)) {
-                                    long count = countAlphabetWords(docs.get(name));
-                                    System.out.printf("%d alphabetical words!\n", count);
+                                } else if (docs.containsKey(name)) {
+                                    docs.get(name).append(word);
                                 } else {
                                     System.out.println(InvalidFile);
                                 }
-                            } else {
-                                System.out.println(InvalidCommand);
                             }
-                            scanner.nextLine();
+                            break;
+                            default:
+                                System.out.println(InvalidCommand);
+                                break;
                         }
                         break;
-                        default:
-                            System.out.println(InvalidCommand);
-                            scanner.nextLine();
+                    case "RMV":
+                        switch (command[1]) {
+                            case "DOC": { // remove the doc
+                                String name = command[2];
+                                if (docs.containsKey(name))
+                                    docs.remove(name);
+                                else
+                                    System.out.println(InvalidFile);
+                            }
                             break;
+                            case "WORD": {
+                                String name = command[2];
+                                String wordToRemove = command[3];
+                                if (name.equals("-ALL")) {
+                                    for (Map.Entry<String, StringBuilder> entry : docs.entrySet()) {
+                                        name = entry.getKey();
+                                        StringBuilder doc = entry.getValue();
+                                        docs.replace(name, remove(doc, wordToRemove));
+                                    }
+                                } else if (docs.containsKey(name)) {
+                                    docs.replace(name, remove(docs.get(name), wordToRemove));
+                                } else {
+                                    System.out.println(InvalidFile);
+                                }
+                            }
+                            break;
+                            default:
+                                System.out.println(InvalidCommand);
+                                break;
+                        }
+                        break;
+                    case "RPLC": { // Replace words
+                        String name = command[1];
+                        String[] wordsToReplace = command[2].split(",");
+                        String toReplaceWord = command[3];
+                        if (name.equals("-ALL")) {
+                            for (Map.Entry<String, StringBuilder> entry : docs.entrySet()) {
+                                name = entry.getKey();
+                                StringBuilder doc = entry.getValue();
+                                docs.replace(name, replace(doc, wordsToReplace, toReplaceWord));
+                            }
+                        } else if (docs.containsKey(name)) {
+                            docs.replace(name, replace(docs.get(name), wordsToReplace, toReplaceWord));
+                        } else {
+                            System.out.println(InvalidFile);
+                        }
                     }
-                }
-                break;
-                case "GCD": {
-                    String name = scanner.next();
-                    if (docs.containsKey(name)) {
-                        long gcd = getGCD(docs.get(name));
-                        docs.get(name).append(gcd);
-                    } else
-                        System.out.println(InvalidFile);
-                    scanner.nextLine(); // skip to newline
-                }
-                break;
-                case "PRINT": {
-                    String name = scanner.next();
-                    if (docs.containsKey(name))
-                        System.out.println(docs.get(name));
-                    else
-                        System.out.println(InvalidFile);
-                    scanner.nextLine(); // skip to newline
-                }
-                break;
-                default:
-                    System.out.println(InvalidCommand);
-                    scanner.nextLine();
                     break;
+                    case "FIND": {
+                        switch (command[1]) {
+                            case "REP": {
+                                String name = command[2];
+                                String string = command[3];
+                                if (docs.containsKey(name)) {
+                                    int lastIndex = 0;
+                                    int count = 0;
+                                    while (lastIndex != -1) {
+                                        lastIndex = docs.get(name).indexOf(string, lastIndex);
+                                        if (lastIndex != -1) {
+                                            count++;
+                                            lastIndex++;
+                                        }
+                                    }
+                                    System.out.printf("%s is repeated %d times in %s\n", string, count, name);
+                                } else {
+                                    System.out.println(InvalidFile);
+                                }
+                            }
+                            break;
+                            case "MIRROR": {
+                                String name = command[2];
+                                String c = command[3];
+                                if (docs.containsKey(name)) {
+                                    long count = countMirrors(docs.get(name), c);
+                                    System.out.printf("%d mirror words!\n", count);
+                                } else {
+                                    System.out.println(InvalidFile);
+                                }
+                            }
+                            break;
+                            case "ALPHABET": {
+                                if (command[2].equals("WORDS")) {
+                                    String name = command[3];
+                                    if (docs.containsKey(name)) {
+                                        long count = countAlphabetWords(docs.get(name));
+                                        System.out.printf("%d alphabetical words!\n", count);
+                                    } else {
+                                        System.out.println(InvalidFile);
+                                    }
+                                } else {
+                                    System.out.println(InvalidCommand);
+                                }
+                            }
+                            break;
+                            default:
+                                System.out.println(InvalidCommand);
+                                break;
+                        }
+                    }
+                    break;
+                    case "GCD": {
+                        String name = command[1];
+                        if (docs.containsKey(name)) {
+                            long gcd = getGCD(docs.get(name));
+                            docs.get(name).append(gcd);
+                        } else
+                            System.out.println(InvalidFile);
+                    }
+                    break;
+                    case "PRINT": {
+                        String name = command[1];
+                        if (docs.containsKey(name))
+                            System.out.println(docs.get(name));
+                        else
+                            System.out.println(InvalidFile);
+                    }
+                    break;
+                    default:
+                        System.out.println(InvalidCommand);
+                        break;
+                }
+            }catch (IndexOutOfBoundsException ex) {
+                System.out.println(InvalidCommand);
             }
         }
     }
@@ -275,6 +265,12 @@ public class Q5 {
     }
 
     private static long GCD(long a, long b) {
+        if (a == 0 && b == 0)
+            return 0;
+        if (a == 0)
+            return b;
+        if (b == 0)
+            return a;
         return a % b == 0 ? b : GCD(b, a % b);
     }
 
