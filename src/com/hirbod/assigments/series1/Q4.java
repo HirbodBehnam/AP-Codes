@@ -20,14 +20,20 @@ import java.util.regex.Pattern;
  * https://stackoverflow.com/questions/4662215/how-to-extract-a-substring-using-regex
  * https://stackoverflow.com/questions/2811031/decimal-or-numeric-values-in-regular-expression-validation
  * https://stackoverflow.com/questions/4047808/what-is-the-best-way-to-tell-if-a-character-is-a-letter-or-number-in-java-withou/4047836
- * Big help in regex from Arad Maleki
+ * Big help in regex and dates from Arad Maleki
+ * Also another big help from Ali Salesi where he said to validate the date and location when printing
  */
 
 public class Q4 {
-    private static final Pattern MessagePattern = Pattern.compile("Message\\{ messageId=%[0-9 ]+-[QWERYUIPLKJGFDZXCVBN][qweryuiplkjgfdzxcvbn]{4}\\$([0-9][0-9]|[0-9][0-9][0-9][0-9])%, from=User\\{ firstName='([^']+)', isBot=(true|false), lastName='([^']*)', userName='([^']*)' }, date=([0-9]{14}), text='([^']*)', location=([+-]?([0-9]+|[0-9]+\\.[0-9]+)) }");
+    private static final Pattern MessagePattern = Pattern.compile("Message\\{ messageId=%[0-9 ]+-[BCDEFGIJKLNPQRUVWXYZ][bcdefgijklnpqruvwxyz]{4}\\$([0-9][0-9]|[0-9][0-9][0-9][0-9])%, from=User\\{ firstName='([^']+)', isBot=(true|false), lastName='([^']*)', userName='([^']*)' }, date=([0-9]{14}), text='([^']*)', location=(-?[0-9]\\d*(\\.\\d+)?) }");
     private static final SimpleDateFormat MessageDateFormatParse = new SimpleDateFormat("yyyyMMdd");
     private static final SimpleDateFormat MessageDateHourFormatParse = new SimpleDateFormat("yyyyMMddHHmmss");
     private static final SimpleDateFormat MessageDateFormatResult = new SimpleDateFormat("HH:mm");
+    /**
+     * Because we can't classes, we use a simple String array to store data. To make thing easy for useless,
+     * here is the complete index table of the array.
+     */
+    static final int IndexName = 0, IndexIsBot = 1, IndexMessage = 2, IndexDate = 3, IndexLocation = 4;
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -46,73 +52,96 @@ public class Q4 {
             }
         }
         // Get the location
-        double location = scanner.nextDouble();
+        double ourLocation = scanner.nextDouble();
         // Find valid requests
-        int o = 1;
-        ArrayList<Message> messages = new ArrayList<>();
+        ArrayList<String[]> messages = getValidMessages(initialText);
+        // Print messages
+        validateAndPrint(messages, startDate, endDate, ourLocation);
+    }
+
+    /**
+     * Gets a list of valid messages from a master string
+     *
+     * @param initialText Master string to extract messages from it
+     * @return Array of messages. Messages are basically just a String array
+     */
+    private static ArrayList<String[]> getValidMessages(String initialText) {
+        ArrayList<String[]> messages = new ArrayList<>();
         Matcher messageMatcher = MessagePattern.matcher(initialText);
         while (messageMatcher.find()) {
-            // Check the location
-            double messageLocation = Double.parseDouble(messageMatcher.group(8));
-            if (Math.abs(messageLocation - location) > 1)
-                continue;
-            // Check date
-            Date messageDate;
-            try {
-                messageDate = MessageDateFormatParse.parse(messageMatcher.group(6).substring(0, 8));
-                if (messageDate.before(startDate) || messageDate.after(endDate))
-                    continue;
-                messageDate = MessageDateHourFormatParse.parse(messageMatcher.group(6));
-            } catch (ParseException ex) { // do we even reach here?
-                throw new RuntimeException();
-            }
             // Validate the username
-            if(!validUsername(messageMatcher.group(5)))
+            if (!validUsername(messageMatcher.group(5)))
                 continue;
-            // Now create a message object
-            messages.add(new Message(messageMatcher.group(2) + " " + messageMatcher.group(4), messageMatcher.group(7), messageMatcher.group(3).equals("true"), messageDate));
+            // Create the message
+            String[] message = new String[5];
+            message[IndexMessage] = messageMatcher.group(7);
+            message[IndexName] = messageMatcher.group(2) + " " + messageMatcher.group(4);
+            message[IndexIsBot] = messageMatcher.group(3);
+            message[IndexLocation] = messageMatcher.group(8);
+            message[IndexDate] = messageMatcher.group(6);
+            messages.add(message);
         }
-        // Print messages
+        return messages;
+    }
+
+    /**
+     * Iterates over all messages and prints the valid ones
+     *
+     * @param messages  The messages to iterate
+     * @param startDate The allowed min date
+     * @param endDate   The allowed max date
+     * @param location  Our current location
+     */
+    private static void validateAndPrint(ArrayList<String[]> messages, Date startDate, Date endDate, double location) {
         for (int i = 0; i < messages.size(); i++) {
-            if (messages.get(i).isBot())
+            if (messages.get(i)[IndexIsBot].equals("true"))
                 i++; // skip next message
-            else
-                System.out.println(messages.get(i).toString());
+            else if (validateDateLocation(messages.get(i), startDate, endDate, location))
+                printMessage(messages.get(i));
         }
     }
 
     /**
-     * Represents a message
+     * Validates the date and location of a message
+     *
+     * @param message   The message to validate
+     * @param startDate The allowed min date
+     * @param endDate   The allowed max date
+     * @param location  Our current location
+     * @return True if valid, otherwise false
      */
-    private static class Message {
-        private final String name;
-        private final String text;
-        private final boolean isBot;
-        private final Date messageDate;
-
-        Message(String name, String text, boolean isBot, Date messageDate) {
-            this.name = name;
-            this.text = text;
-            this.isBot = isBot;
-            this.messageDate = messageDate;
+    private static boolean validateDateLocation(String[] message, Date startDate, Date endDate, double location) {
+        // Check the date
+        double messageLocation = Double.parseDouble(message[IndexLocation]);
+        if (Math.abs(messageLocation - location) > 1)
+            return false;
+        // Check the date
+        Date messageDate;
+        try {
+            messageDate = MessageDateFormatParse.parse(message[IndexDate].substring(0, 8)); // 0 to 8 is the yyyyMMdd
+            if (messageDate.before(startDate) || messageDate.after(endDate))
+                return false;
+        } catch (ParseException ex) { // we will never reach here
+            throw new RuntimeException();
         }
+        return true;
+    }
 
-        /**
-         * Is this message been sent from a bot?
-         *
-         * @return True if bot
-         */
-        public boolean isBot() {
-            return this.isBot;
-        }
-
-        @Override
-        public String toString() {
-            return "--------------------\n" +
-                    "*" + this.name + "*\n" +
-                    this.text + "\n" +
+    /**
+     * Prints one message into stdout
+     *
+     * @param message The message to write it
+     */
+    private static void printMessage(String[] message) {
+        try {
+            Date messageDate = MessageDateHourFormatParse.parse(message[IndexDate]);
+            System.out.println("--------------------\n" +
+                    "*" + message[IndexName] + "*\n" +
+                    message[IndexMessage] + "\n" +
                     "_" + MessageDateFormatResult.format(messageDate) + "_\n" +
-                    "--------------------";
+                    "--------------------");
+        } catch (ParseException ex) { // we will never reach here
+            throw new RuntimeException();
         }
     }
 

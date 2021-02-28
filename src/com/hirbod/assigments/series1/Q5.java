@@ -157,7 +157,8 @@ public class Q5 {
                         String name = command[1];
                         if (docs.containsKey(name)) {
                             long gcd = getGCD(docs.get(name));
-                            docs.get(name).append(gcd);
+                            if (gcd != -1)
+                                docs.get(name).append(gcd);
                         } else
                             System.out.println(InvalidFile);
                     }
@@ -255,7 +256,7 @@ public class Q5 {
         while (m.find())
             numbers.add(Long.parseLong(m.group(1)));
         if (numbers.size() == 0)
-            return 0; // TODO: check
+            return -1;
         if (numbers.size() == 1)
             return numbers.get(0);
         long gcd = GCD(numbers.get(0), numbers.get(1));
@@ -265,8 +266,6 @@ public class Q5 {
     }
 
     private static long GCD(long a, long b) {
-        if (a == 0 && b == 0)
-            return 0;
         if (a == 0)
             return b;
         if (b == 0)
