@@ -10,7 +10,9 @@ import java.util.regex.Pattern;
  * https://stackoverflow.com/questions/3395286/remove-last-character-of-a-stringbuilder/3395329
  * https://stackoverflow.com/a/1066603/4213397
  * https://stackoverflow.com/a/767833/4213397
- * Special thanks to Arad Maleki
+ * https://stackoverflow.com/a/5374359/4213397
+ * https://stackoverflow.com/a/157950/4213397
+ * Special thanks to Arad Maleki and Ali Salesi
  */
 
 public class Q5 {
@@ -25,11 +27,20 @@ public class Q5 {
             String[] command = commandRaw.split(" ");
             try {
                 switch (command[0]) {
-                    case "END": // end the program
+                    case "END": { // end the program
+                        if (command.length != 1) {
+                            System.out.println(InvalidCommand);
+                            break;
+                        }
                         return;
+                    }
                     case "ADD": // add doc
                         switch (command[1]) {
                             case "DOC": { // create a new doc
+                                if (command.length != 3) {
+                                    System.out.println(InvalidCommand);
+                                    break;
+                                }
                                 String name = command[2];
                                 String content = scanner.nextLine();
                                 // Content and write
@@ -37,6 +48,10 @@ public class Q5 {
                             }
                             break;
                             case "WORD": {
+                                if (command.length != 4) {
+                                    System.out.println(InvalidCommand);
+                                    break;
+                                }
                                 String name = command[2];
                                 String word = command[3];
                                 if (name.equals("-ALL")) {
@@ -58,6 +73,10 @@ public class Q5 {
                     case "RMV":
                         switch (command[1]) {
                             case "DOC": { // remove the doc
+                                if (command.length != 3) {
+                                    System.out.println(InvalidCommand);
+                                    break;
+                                }
                                 String name = command[2];
                                 if (docs.containsKey(name))
                                     docs.remove(name);
@@ -66,6 +85,10 @@ public class Q5 {
                             }
                             break;
                             case "WORD": {
+                                if (command.length != 4) {
+                                    System.out.println(InvalidCommand);
+                                    break;
+                                }
                                 String name = command[2];
                                 String wordToRemove = command[3];
                                 if (name.equals("-ALL")) {
@@ -87,6 +110,10 @@ public class Q5 {
                         }
                         break;
                     case "RPLC": { // Replace words
+                        if (command.length != 4) {
+                            System.out.println(InvalidCommand);
+                            break;
+                        }
                         String name = command[1];
                         String[] wordsToReplace = command[2].split(",");
                         String toReplaceWord = fixContent(command[3]).toString();
@@ -107,12 +134,7 @@ public class Q5 {
                         switch (command[1]) {
                             case "REP": {
                                 String name = command[2];
-                                String string = escape(commandRaw.substring("FIND REP ".length() + name.length() + 1));
-                                if (string.equals(""))
-                                {
-                                    System.out.println(InvalidCommand);
-                                    break;
-                                }
+                                String string = commandRaw.substring("FIND REP ".length() + name.length() + 1);
                                 if (docs.containsKey(name)) {
                                     int lastIndex = 0;
                                     int count = 0;
@@ -130,6 +152,10 @@ public class Q5 {
                             }
                             break;
                             case "MIRROR": {
+                                if (command.length != 4) {
+                                    System.out.println(InvalidCommand);
+                                    break;
+                                }
                                 String name = command[2];
                                 String c = command[3];
                                 if (c.length() != 1) {
@@ -145,6 +171,10 @@ public class Q5 {
                             }
                             break;
                             case "ALPHABET": {
+                                if (command.length != 4) {
+                                    System.out.println(InvalidCommand);
+                                    break;
+                                }
                                 if (command[2].equals("WORDS")) {
                                     String name = command[3];
                                     if (docs.containsKey(name)) {
@@ -165,6 +195,10 @@ public class Q5 {
                     }
                     break;
                     case "GCD": {
+                        if (command.length != 2) {
+                            System.out.println(InvalidCommand);
+                            break;
+                        }
                         String name = command[1];
                         if (docs.containsKey(name)) {
                             long gcd = getGCD(docs.get(name));
@@ -175,6 +209,10 @@ public class Q5 {
                     }
                     break;
                     case "PRINT": {
+                        if (command.length != 2) {
+                            System.out.println(InvalidCommand);
+                            break;
+                        }
                         String name = command[1];
                         if (docs.containsKey(name))
                             System.out.println(docs.get(name));
@@ -186,7 +224,7 @@ public class Q5 {
                         System.out.println(InvalidCommand);
                         break;
                 }
-            }catch (IndexOutOfBoundsException ex) {
+            } catch (IndexOutOfBoundsException ex) {
                 System.out.println(InvalidCommand);
             }
         }
@@ -194,15 +232,15 @@ public class Q5 {
 
     private static StringBuilder fixContent(String content) {
         // At first fix the pictures
-        Pattern p = Pattern.compile("(?<= |^)!\\[([^\\[\\] ]*)]\\([^()]+\\)(?= |$)");
-        Matcher m = p.matcher(content);
-        if (m.find())
-            content = m.replaceAll("$1");
-        // Fix the links
-        p = Pattern.compile("(?<= |^)\\[([^\\[\\] ]*)]\\([^()]+\\)(?= |$)");
-        m = p.matcher(content);
-        if (m.find())
-            content = m.replaceAll("$1");
+        Pattern p = Pattern.compile("!?\\[([^\\[\\] ]*)]\\([^()]+\\)");
+        Matcher m;
+        while (true) {
+            m = p.matcher(content);
+            if (m.find())
+                content = m.replaceAll("$1");
+            else
+                break;
+        }
         // Fix bolds
         p = Pattern.compile("(?<= |^|\\*)\\*\\*([^*]+)\\*\\*(?= |$|\\*)");
         while (true) {
@@ -292,7 +330,7 @@ public class Q5 {
         long counter = 0;
         String[] words = getWords(source.toString());
         Pattern p = Pattern.compile("^(\\d+)" + c + "(\\d+)$");
-        for (String word: words) {
+        for (String word : words) {
             Matcher m = p.matcher(word);
             while (m.find())
                 if (m.group(1).equals(m.group(2)))
@@ -313,8 +351,7 @@ public class Q5 {
 
     private static String[] getWords(String sentence) {
         ArrayList<String> words = new ArrayList<>(Arrays.asList(sentence.split(" ")));
-        for(int i = sentence.length() - 1; i >= 0; i--)
-        {
+        for (int i = sentence.length() - 1; i >= 0; i--) {
             if (sentence.charAt(i) == ' ')
                 words.add("");
             else
@@ -322,18 +359,5 @@ public class Q5 {
         }
         String[] stockArr = new String[words.size()];
         return words.toArray(stockArr);
-    }
-
-    /**
-     * escape()
-     * <p>
-     * Escape a give String to make it safe to be printed or stored.
-     *
-     * @param s The input String.
-     * @return The output String.
-     **/
-    public static String escape(String s) {
-        return s.replace("\\", "\\\\")
-                .replace("*", "\\*");
     }
 }
