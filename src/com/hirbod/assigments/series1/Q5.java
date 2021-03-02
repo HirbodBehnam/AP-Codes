@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
  * https://stackoverflow.com/a/767833/4213397
  * https://stackoverflow.com/a/5374359/4213397
  * https://stackoverflow.com/a/157950/4213397
+ * https://stackoverflow.com/a/3395329/4213397
  * Special thanks to Arad Maleki and Ali Salesi
  */
 
@@ -230,47 +231,59 @@ public class Q5 {
         }
     }
 
+    /**
+     * Fix the markdown and remove unneeded stuff stuff
+     * @param content The text to fix
+     * @return The fixed text
+     */
     private static StringBuilder fixContent(String content) {
-        // At first fix the pictures
-        Pattern p = Pattern.compile("!?\\[([^\\[\\] ]*)]\\([^()]+\\)");
-        Matcher m;
-        while (true) {
-            m = p.matcher(content);
-            if (m.find())
-                content = m.replaceAll("$1");
+        // At first fix the pictures and links
+        Pattern pattern = Pattern.compile("!?\\[([^\\[\\] ]*)]\\([^()]+\\)");
+        Matcher matcher;
+        while (true) { // use while to fix the nested links
+            matcher = pattern.matcher(content);
+            if (matcher.find())
+                content = matcher.replaceAll("$1");
             else
                 break;
         }
         // Fix bolds
-        p = Pattern.compile("(?<= |^|\\*)\\*\\*([^*]+)\\*\\*(?= |$|\\*)");
-        while (true) {
-            m = p.matcher(content);
-            if (m.find())
-                content = m.replaceAll("$1");
+        pattern = Pattern.compile("(?<= |^|\\*)\\*\\*([^*]+)\\*\\*(?= |$|\\*)");
+        while (true) { // use while to fix the nested bolds
+            matcher = pattern.matcher(content);
+            if (matcher.find())
+                content = matcher.replaceAll("$1");
             else
                 break;
         }
         // Remove all noisy words
         String[] words = getWords(content);
-        StringBuilder stringBuilder = new StringBuilder(content.length());
+        StringBuilder contentBuilder = new StringBuilder(content.length());
         for (String word : words) {
             if (word.matches("[a-zA-Z0-9]*"))
-                stringBuilder.append(word);
-            stringBuilder.append(' ');
+                contentBuilder.append(word);
+            contentBuilder.append(' ');
         }
         // Remove the last space
-        if (stringBuilder.length() > 0)
-            stringBuilder.setLength(stringBuilder.length() - 1);
-        return stringBuilder;
+        if (contentBuilder.length() > 0)
+            contentBuilder.setLength(contentBuilder.length() - 1);
+        return contentBuilder;
     }
 
-    private static StringBuilder replace(StringBuilder source, String[] toReplaceWords, String replaceWord) {
+    /**
+     * Replaces the last occurrence of a word in a doc
+     * @param source The doc to read from it
+     * @param wordsToReplace The words to replace them with replacedWord
+     * @param replacedWord The word to be replaced with wordsToReplace
+     * @return A new string builder which have it words replaced
+     */
+    private static StringBuilder replace(StringBuilder source, String[] wordsToReplace, String replacedWord) {
         String[] words = getWords(source.toString());
         StringBuilder newBuilder = new StringBuilder(source.length());
-        for (String toReplaceWord : toReplaceWords) { // for each word search from last and match
+        for (String toReplaceWord : wordsToReplace) { // for each word search from last and match
             for (int i = words.length - 1; i >= 0; i--) {
                 if (words[i].equals(toReplaceWord)) {
-                    words[i] = replaceWord;
+                    words[i] = replacedWord;
                     break;
                 }
             }
@@ -285,12 +298,18 @@ public class Q5 {
         return newBuilder;
     }
 
+    /**
+     * Removes all occurrences of a word from doc
+     * @param source The source to remove the words in
+     * @param wordToRemove The word to remove from doc
+     * @return A "NEW" StringBuilder which have the text without the word
+     */
     private static StringBuilder remove(StringBuilder source, String wordToRemove) {
         String[] words = getWords(source.toString());
         StringBuilder newBuilder = new StringBuilder(source.length());
         for (int i = 0; i < words.length; i++)
             if (words[i].equals(wordToRemove))
-                words[i] = "";
+                words[i] = ""; // remove it
 
         for (String word : words) {
             newBuilder.append(word);
@@ -302,14 +321,20 @@ public class Q5 {
         return newBuilder;
     }
 
+    /**
+     * Find the GCD of numbers in a doc
+     * @param source The doc to check in
+     * @return The GCD of numbers. If nothing exists, return -1
+     */
     private static long getGCD(StringBuilder source) {
-        Pattern p = Pattern.compile("(\\d+)");
-        Matcher m = p.matcher(source);
+        Pattern pattern = Pattern.compile("(\\d+)");
+        Matcher matcher = pattern.matcher(source);
         ArrayList<Long> numbers = new ArrayList<>();
-        while (m.find())
-            numbers.add(Long.parseLong(m.group(1)));
-        if (numbers.size() == 0)
+        while (matcher.find())
+            numbers.add(Long.parseLong(matcher.group(1)));
+        if (numbers.size() == 0) // nothing exits
             return -1;
+        // From here, calculate the GCD of all numbers in numbers
         if (numbers.size() == 1)
             return numbers.get(0);
         long gcd = GCD(numbers.get(0), numbers.get(1));
@@ -318,27 +343,46 @@ public class Q5 {
         return gcd;
     }
 
-    private static long GCD(long a, long b) {
-        if (a == 0)
-            return b;
-        if (b == 0)
-            return a;
-        return a % b == 0 ? b : GCD(b, a % b);
+    /**
+     * Returns GCD of two numbers
+     * If any of them is zero, returns the other
+     * If both are zero returns 0
+     * @param number1 First number
+     * @param number2 Second number
+     * @return The GCD of them
+     */
+    private static long GCD(long number1, long number2) {
+        if (number1 == 0)
+            return number2;
+        if (number2 == 0)
+            return number1;
+        return number1 % number2 == 0 ? number2 : GCD(number2, number1 % number2);
     }
 
-    private static long countMirrors(StringBuilder source, String c) {
+    /**
+     * Count the mirror words in a string
+     * @param source The string to count in
+     * @param mirroredCharacter The world which must be mirrored
+     * @return The number of words
+     */
+    private static long countMirrors(StringBuilder source, String mirroredCharacter) {
         long counter = 0;
         String[] words = getWords(source.toString());
-        Pattern p = Pattern.compile("^(\\d+)" + c + "(\\d+)$");
-        for (String word : words) {
-            Matcher m = p.matcher(word);
-            while (m.find())
-                if (m.group(1).equals(m.group(2)))
+        Pattern pattern = Pattern.compile("^(\\d+)" + mirroredCharacter + "(\\d+)$"); // first of string + number + mirroredCharacter + number + last of string
+        for (String word : words) { // check each word
+            Matcher matcher = pattern.matcher(word);
+            while (matcher.find())
+                if (matcher.group(1).equals(matcher.group(2)))
                     counter++;
         }
         return counter;
     }
 
+    /**
+     * Counts all alphabetic words in a string builder
+     * @param source The string builder to check
+     * @return The number of alphabetic words
+     */
     private static long countAlphabetWords(StringBuilder source) {
         long counter = 0;
         String[] words = getWords(source.toString());
@@ -349,6 +393,14 @@ public class Q5 {
         return counter;
     }
 
+    /**
+     * Split string by space. But why not use String.split?
+     * Apparently, String.split ingress the last whitespaces in a string
+     * For example "hello " with split becomes {"hello"} not {"hello", ""}
+     * This function correctly, splits the string
+     * @param sentence The string to split it
+     * @return The worlds
+     */
     private static String[] getWords(String sentence) {
         ArrayList<String> words = new ArrayList<>(Arrays.asList(sentence.split(" ")));
         for (int i = sentence.length() - 1; i >= 0; i--) {
@@ -357,7 +409,7 @@ public class Q5 {
             else
                 break;
         }
-        String[] stockArr = new String[words.size()];
-        return words.toArray(stockArr);
+        String[] wordsArray = new String[words.size()];
+        return words.toArray(wordsArray);
     }
 }
