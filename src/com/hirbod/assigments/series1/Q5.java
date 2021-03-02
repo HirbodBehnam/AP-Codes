@@ -1,6 +1,5 @@
 package com.hirbod.assigments.series1;
 
-import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -214,7 +213,7 @@ public class Q5 {
                 break;
         }
         // Remove all noisy words
-        String[] words = content.split(" ");
+        String[] words = getWords(content);
         StringBuilder stringBuilder = new StringBuilder(content.length());
         for (String word : words) {
             if (word.matches("[a-zA-Z0-9]*"))
@@ -228,7 +227,7 @@ public class Q5 {
     }
 
     private static StringBuilder replace(StringBuilder source, String[] toReplaceWords, String replaceWord) {
-        String[] words = source.toString().split(" ");
+        String[] words = getWords(source.toString());
         StringBuilder newBuilder = new StringBuilder(source.length());
         for (String toReplaceWord : toReplaceWords) { // for each word search from last and match
             for (int i = words.length - 1; i >= 0; i--) {
@@ -249,7 +248,7 @@ public class Q5 {
     }
 
     private static StringBuilder remove(StringBuilder source, String wordToRemove) {
-        String[] words = source.toString().split(" ");
+        String[] words = getWords(source.toString());
         StringBuilder newBuilder = new StringBuilder(source.length());
         for (int i = 0; i < words.length; i++)
             if (words[i].equals(wordToRemove))
@@ -291,7 +290,7 @@ public class Q5 {
 
     private static long countMirrors(StringBuilder source, String c) {
         long counter = 0;
-        String[] words = source.toString().split(" ");
+        String[] words = getWords(source.toString());
         Pattern p = Pattern.compile("^(\\d+)" + c + "(\\d+)$");
         for (String word: words) {
             Matcher m = p.matcher(word);
@@ -304,7 +303,7 @@ public class Q5 {
 
     private static long countAlphabetWords(StringBuilder source) {
         long counter = 0;
-        String[] words = source.toString().split(" ");
+        String[] words = getWords(source.toString());
         for (String word : words)
             if (word.matches("[a-zA-Z]+"))
                 counter++;
@@ -312,11 +311,11 @@ public class Q5 {
         return counter;
     }
 
-    private static String[] getWords(String sentance) {
-        ArrayList<String> words = new ArrayList<>(Arrays.asList(sentance.split(" ")));
-        for(int i = sentance.length() - 1; i >= 0; i--)
+    private static String[] getWords(String sentence) {
+        ArrayList<String> words = new ArrayList<>(Arrays.asList(sentence.split(" ")));
+        for(int i = sentence.length() - 1; i >= 0; i--)
         {
-            if (sentance.charAt(i) == ' ')
+            if (sentence.charAt(i) == ' ')
                 words.add("");
             else
                 break;
