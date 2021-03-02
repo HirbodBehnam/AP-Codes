@@ -1,5 +1,6 @@
 package com.hirbod.assigments.series1;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
  * https://stackoverflow.com/questions/3395286/remove-last-character-of-a-stringbuilder/3395329
  * https://stackoverflow.com/a/1066603/4213397
  * https://stackoverflow.com/a/767833/4213397
+ * Special thanks to Arad Maleki
  */
 
 public class Q5 {
@@ -20,7 +22,8 @@ public class Q5 {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            String[] command = scanner.nextLine().split(" ");
+            String commandRaw = scanner.nextLine().trim();
+            String[] command = commandRaw.split(" ");
             try {
                 switch (command[0]) {
                     case "END": // end the program
@@ -87,7 +90,7 @@ public class Q5 {
                     case "RPLC": { // Replace words
                         String name = command[1];
                         String[] wordsToReplace = command[2].split(",");
-                        String toReplaceWord = command[3];
+                        String toReplaceWord = fixContent(command[3]).toString();
                         if (name.equals("-ALL")) {
                             for (Map.Entry<String, StringBuilder> entry : docs.entrySet()) {
                                 name = entry.getKey();
@@ -105,7 +108,12 @@ public class Q5 {
                         switch (command[1]) {
                             case "REP": {
                                 String name = command[2];
-                                String string = command[3];
+                                String string = escape(commandRaw.substring("FIND REP ".length() + name.length() + 1));
+                                if (string.equals(""))
+                                {
+                                    System.out.println(InvalidCommand);
+                                    break;
+                                }
                                 if (docs.containsKey(name)) {
                                     int lastIndex = 0;
                                     int count = 0;
@@ -125,6 +133,10 @@ public class Q5 {
                             case "MIRROR": {
                                 String name = command[2];
                                 String c = command[3];
+                                if (c.length() != 1) {
+                                    System.out.println(InvalidCommand);
+                                    break;
+                                }
                                 if (docs.containsKey(name)) {
                                     long count = countMirrors(docs.get(name), c);
                                     System.out.printf("%d mirror words!\n", count);
@@ -183,20 +195,24 @@ public class Q5 {
 
     private static StringBuilder fixContent(String content) {
         // At first fix the pictures
-        Pattern p = Pattern.compile("!\\[([^\\[\\]]+)\\]\\([^\\(\\)]+\\)");
+        Pattern p = Pattern.compile("(?<= |^)!\\[([^\\[\\] ]*)]\\([^()]+\\)(?= |$)");
         Matcher m = p.matcher(content);
         if (m.find())
             content = m.replaceAll("$1");
         // Fix the links
-        p = Pattern.compile("\\[([^\\[\\]]+)\\]\\([^\\(\\)]+\\)");
+        p = Pattern.compile("(?<= |^)\\[([^\\[\\] ]*)]\\([^()]+\\)(?= |$)");
         m = p.matcher(content);
         if (m.find())
             content = m.replaceAll("$1");
         // Fix bolds
-        p = Pattern.compile("\\*\\*([^\\*]*)\\*\\*");
-        m = p.matcher(content);
-        if (m.find())
-            content = m.replaceAll("$1");
+        p = Pattern.compile("(?<= |^|\\*)\\*\\*([^*]+)\\*\\*(?= |$|\\*)");
+        while (true) {
+            m = p.matcher(content);
+            if (m.find())
+                content = m.replaceAll("$1");
+            else
+                break;
+        }
         // Remove all noisy words
         String[] words = content.split(" ");
         StringBuilder stringBuilder = new StringBuilder(content.length());
@@ -275,11 +291,14 @@ public class Q5 {
 
     private static long countMirrors(StringBuilder source, String c) {
         long counter = 0;
-        Pattern p = Pattern.compile("(^|\\s)(\\d)+" + c + "(\\d)+(\\s|$)");
-        Matcher m = p.matcher(source);
-        while (m.find())
-            if (m.group(2).equals(m.group(3)))
-                counter++;
+        String[] words = source.toString().split(" ");
+        Pattern p = Pattern.compile("^(\\d+)" + c + "(\\d+)$");
+        for (String word: words) {
+            Matcher m = p.matcher(word);
+            while (m.find())
+                if (m.group(1).equals(m.group(2)))
+                    counter++;
+        }
         return counter;
     }
 
@@ -293,6 +312,19 @@ public class Q5 {
         return counter;
     }
 
+    private static String[] getWords(String sentance) {
+        ArrayList<String> words = new ArrayList<>(Arrays.asList(sentance.split(" ")));
+        for(int i = sentance.length() - 1; i >= 0; i--)
+        {
+            if (sentance.charAt(i) == ' ')
+                words.add("");
+            else
+                break;
+        }
+        String[] stockArr = new String[words.size()];
+        return words.toArray(stockArr);
+    }
+
     /**
      * escape()
      * <p>
@@ -303,12 +335,6 @@ public class Q5 {
      **/
     public static String escape(String s) {
         return s.replace("\\", "\\\\")
-                .replace("\t", "\\t")
-                .replace("\b", "\\b")
-                .replace("\n", "\\n")
-                .replace("\r", "\\r")
-                .replace("\f", "\\f")
-                .replace("\'", "\\'")
-                .replace("\"", "\\\"");
+                .replace("*", "\\*");
     }
 }
