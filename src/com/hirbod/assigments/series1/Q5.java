@@ -20,21 +20,23 @@ public class Q5 {
     final static HashMap<String, StringBuilder> docs = new HashMap<>(); // key=name, value=content
     final static String InvalidCommand = "invalid command!";
     final static String InvalidFile = "invalid file name!";
-    final static Scanner scanner = new Scanner(System.in);
+    final static Scanner InputScanner = new Scanner(System.in);
 
     public static void main(String[] args) {
         while (true) {
-            String commandRaw = scanner.nextLine().trim();
-            String[] command = commandRaw.split(" ");
-            if (handleCommand(commandRaw, command))
+            String commandRaw = InputScanner.nextLine().trim();
+            String[] arguments = commandRaw.split(" ");
+            if (handleCommand(commandRaw, arguments))
                 break;
         }
     }
 
     /**
      * Handles all commands
+     * I really cannot make this method smaller :|
+     *
      * @param commandRaw The raw arguments which has been passed to program
-     * @param arguments The commands split by a whitespace
+     * @param arguments  The commands split by a whitespace
      * @return True if we must terminate the program, otherwise false
      */
     private static boolean handleCommand(final String commandRaw, final String[] arguments) {
@@ -66,60 +68,62 @@ public class Q5 {
                 break;
             default:
                 System.out.println(InvalidCommand);
-                break;
         }
         return false;
     }
 
     /**
      * Handles the PRINT command
-     * @param arguments The arguments sent to this arguments
+     *
+     * @param arguments The arguments sent to this command
      */
     private static void handlePrintCommand(String[] arguments) {
         if (arguments.length != 2) {
             System.out.println(InvalidCommand);
             return;
         }
-        String name = arguments[1];
-        if (docs.containsKey(name))
-            System.out.println(docs.get(name));
+        String docName = arguments[1];
+        if (docs.containsKey(docName))
+            System.out.println(docs.get(docName));
         else
             System.out.println(InvalidFile);
     }
 
     /**
      * Handles calculating GCD in a doc
-     * @param arguments The arguments sent to this arguments
+     *
+     * @param arguments The arguments sent to this command
      */
     private static void handleGCDCommand(String[] arguments) {
         if (arguments.length != 2) {
             System.out.println(InvalidCommand);
             return;
         }
-        String name = arguments[1];
-        if (docs.containsKey(name)) {
-            long gcd = getGCDOfDocument(docs.get(name));
+        String docName = arguments[1];
+        if (docs.containsKey(docName)) {
+            long gcd = getGCDOfDocument(docs.get(docName));
             if (gcd != -1) // if gcd is -1, it means that there was no number in doc
-                docs.get(name).append(gcd);
+                docs.get(docName).append(gcd);
         } else
             System.out.println(InvalidFile);
     }
 
     /**
      * Handles the commands which start with "FIND"
+     *
      * @param commandRaw The raw arguments user has entered
-     * @param arguments The commands split by whitespace
+     * @param arguments  The commands split by whitespace
      */
     private static void handleFindCommand(String commandRaw, String[] arguments) {
-        if (arguments.length < 4){
+        if (arguments.length < 4) {
             System.out.println(InvalidCommand);
             return;
         }
         switch (arguments[1]) {
             case "REP": {
-                String name = arguments[2];
-                String stringToCheck = commandRaw.substring("FIND REP ".length() + name.length() + 1);
-                handleFindRepeatCommand(name, stringToCheck);
+                String docName = arguments[2];
+                String stringToCheck = commandRaw.substring("FIND REP ".length() + docName.length() + 1);
+                handleFindRepeatCommand(docName, stringToCheck);
             }
             break;
             case "MIRROR": {
@@ -138,6 +142,7 @@ public class Q5 {
 
     /**
      * Handles the FIND ALPHABET commands
+     *
      * @param arguments The arguments passed
      */
     private static void HandleFindAlphabetCommand(String[] arguments) {
@@ -146,10 +151,10 @@ public class Q5 {
             return;
         }
         if (arguments[2].equals("WORDS")) {
-            String name = arguments[3];
-            if (docs.containsKey(name)) {
-                long count = countAlphabetWordsInDocument(docs.get(name));
-                System.out.printf("%d alphabetical words!\n", count);
+            String docName = arguments[3];
+            if (docs.containsKey(docName)) {
+                long numberOfAlphabeticWords = countAlphabetWordsInDocument(docs.get(docName));
+                System.out.printf("%d alphabetical words!\n", numberOfAlphabeticWords);
             } else {
                 System.out.println(InvalidFile);
             }
@@ -160,6 +165,7 @@ public class Q5 {
 
     /**
      * Handles the FIND MIRROR arguments
+     *
      * @param arguments The args passed
      */
     private static void handleFindMirrorCommand(String[] arguments) {
@@ -167,14 +173,14 @@ public class Q5 {
             System.out.println(InvalidCommand);
             return;
         }
-        String name = arguments[2];
-        String c = arguments[3];
-        if (c.length() != 1) {
+        String docName = arguments[2];
+        String characterInMiddle = arguments[3];
+        if (characterInMiddle.length() != 1) {
             System.out.println(InvalidCommand);
             return;
         }
-        if (docs.containsKey(name)) {
-            long count = countMirrorsInDocument(docs.get(name), c);
+        if (docs.containsKey(docName)) {
+            long count = countMirrorsInDocument(docs.get(docName), characterInMiddle);
             System.out.printf("%d mirror words!\n", count);
         } else {
             System.out.println(InvalidFile);
@@ -183,7 +189,8 @@ public class Q5 {
 
     /**
      * Handles the FIND REP command
-     * @param name The document name
+     *
+     * @param name          The document name
      * @param stringToCheck The string to check if number of repeated times
      */
     private static void handleFindRepeatCommand(String name, String stringToCheck) {
@@ -205,6 +212,7 @@ public class Q5 {
 
     /**
      * Handles the replace command to replace last word of a doc
+     *
      * @param arguments The args sent to this command
      */
     private static void handleReplaceCommand(String[] arguments) {
@@ -230,7 +238,8 @@ public class Q5 {
 
     /**
      * Handles all commands which start with remove
-     * @param arguments The args sent to this arguments
+     *
+     * @param arguments The args sent to this command
      */
     private static void handleRemoveCommand(String[] arguments) {
         if (arguments.length < 2) {
@@ -243,31 +252,15 @@ public class Q5 {
                     System.out.println(InvalidCommand);
                     break;
                 }
-                String name = arguments[2];
-                if (docs.containsKey(name))
-                    docs.remove(name);
+                String docName = arguments[2];
+                if (docs.containsKey(docName))
+                    docs.remove(docName);
                 else
                     System.out.println(InvalidFile);
             }
             break;
             case "WORD": {
-                if (arguments.length != 4) {
-                    System.out.println(InvalidCommand);
-                    break;
-                }
-                String name = arguments[2];
-                String wordToRemove = arguments[3];
-                if (name.equals("-ALL")) {
-                    for (Map.Entry<String, StringBuilder> entry : docs.entrySet()) {
-                        name = entry.getKey();
-                        StringBuilder doc = entry.getValue();
-                        docs.replace(name, removeWordInDocument(doc, wordToRemove));
-                    }
-                } else if (docs.containsKey(name)) {
-                    docs.replace(name, removeWordInDocument(docs.get(name), wordToRemove));
-                } else {
-                    System.out.println(InvalidFile);
-                }
+                handleRemoveWordCommand(arguments);
             }
             break;
             default:
@@ -277,7 +270,33 @@ public class Q5 {
     }
 
     /**
+     * Handles the REMOVE WORD command
+     *
+     * @param arguments The args sent to this command
+     */
+    private static void handleRemoveWordCommand(String[] arguments) {
+        if (arguments.length != 4) {
+            System.out.println(InvalidCommand);
+            return;
+        }
+        String name = arguments[2];
+        String wordToRemove = arguments[3];
+        if (name.equals("-ALL")) {
+            for (Map.Entry<String, StringBuilder> entry : docs.entrySet()) {
+                name = entry.getKey();
+                StringBuilder doc = entry.getValue();
+                docs.replace(name, removeWordInDocument(doc, wordToRemove));
+            }
+        } else if (docs.containsKey(name)) {
+            docs.replace(name, removeWordInDocument(docs.get(name), wordToRemove));
+        } else {
+            System.out.println(InvalidFile);
+        }
+    }
+
+    /**
      * Handles commands which start with ADD
+     *
      * @param arguments The args passed
      */
     private static void handleAddCommand(String[] arguments) {
@@ -291,10 +310,10 @@ public class Q5 {
                     System.out.println(InvalidCommand);
                     break;
                 }
-                String name = arguments[2];
-                String content = scanner.nextLine();
+                String docName = arguments[2];
+                String docContent = InputScanner.nextLine();
                 // Content and write
-                docs.put(name, fixDocumentContent(content)); // this arguments overwrites as well
+                docs.put(docName, fixDocumentContent(docContent)); // this method overwrites as well
             }
             break;
             case "WORD": {
@@ -309,6 +328,7 @@ public class Q5 {
 
     /**
      * Handle the ADD WORD arguments
+     *
      * @param arguments The args passed
      */
     private static void handleAddWordCommand(String[] arguments) {
@@ -316,14 +336,14 @@ public class Q5 {
             System.out.println(InvalidCommand);
             return;
         }
-        String name = arguments[2];
+        String docName = arguments[2];
         String word = arguments[3];
-        if (name.equals("-ALL")) {
+        if (docName.equals("-ALL")) {
             for (StringBuilder doc : docs.values()) {
                 doc.append(word);
             }
-        } else if (docs.containsKey(name)) {
-            docs.get(name).append(word);
+        } else if (docs.containsKey(docName)) {
+            docs.get(docName).append(word);
         } else {
             System.out.println(InvalidFile);
         }
@@ -331,6 +351,7 @@ public class Q5 {
 
     /**
      * Fix the markdown and remove unneeded stuff stuff
+     * This method is exactly 30 lines without commands
      *
      * @param documentContent The text to fix
      * @return The fixed text
@@ -339,7 +360,7 @@ public class Q5 {
         // At first fix the pictures and links
         Pattern pattern = Pattern.compile("!?\\[([^\\[\\] ]*)]\\([^()]+\\)");
         Matcher matcher;
-        while (true) { // use while to fix the nested links
+        while (true) { // use while to fix the nested links/pics
             matcher = pattern.matcher(documentContent);
             if (matcher.find())
                 documentContent = matcher.replaceAll("$1");
@@ -359,7 +380,7 @@ public class Q5 {
         String[] words = getWords(documentContent);
         StringBuilder contentBuilder = new StringBuilder(documentContent.length());
         for (String word : words) {
-            if (word.matches("[a-zA-Z0-9]*"))
+            if (word.matches("[a-zA-Z0-9]*")) // only append words that are not noisy
                 contentBuilder.append(word);
             contentBuilder.append(' ');
         }
@@ -379,7 +400,7 @@ public class Q5 {
      */
     private static StringBuilder replaceWordInDocument(StringBuilder source, String[] wordsToReplace, String replacedWord) {
         String[] words = getWords(source.toString());
-        StringBuilder newBuilder = new StringBuilder(source.length());
+        StringBuilder newDocument = new StringBuilder(source.length());
         for (String toReplaceWord : wordsToReplace) { // for each word search from last and match
             for (int i = words.length - 1; i >= 0; i--) {
                 if (words[i].equals(toReplaceWord)) {
@@ -389,13 +410,13 @@ public class Q5 {
             }
         }
         for (String word : words) {
-            newBuilder.append(word);
-            newBuilder.append(' ');
+            newDocument.append(word);
+            newDocument.append(' ');
         }
         // Remove the last space
-        if (newBuilder.length() > 0)
-            newBuilder.setLength(newBuilder.length() - 1);
-        return newBuilder;
+        if (newDocument.length() > 0)
+            newDocument.setLength(newDocument.length() - 1);
+        return newDocument;
     }
 
     /**
@@ -429,11 +450,11 @@ public class Q5 {
      * @return The GCD of numbers. If nothing exists, return -1
      */
     private static long getGCDOfDocument(StringBuilder source) {
-        Pattern pattern = Pattern.compile("(\\d+)");
-        Matcher matcher = pattern.matcher(source);
-        ArrayList<Long> numbers = new ArrayList<>();
-        while (matcher.find())
-            numbers.add(Long.parseLong(matcher.group(1)));
+        Pattern numberPattern = Pattern.compile("(\\d+)");
+        Matcher numberMatcher = numberPattern.matcher(source);
+        ArrayList<Long> numbers = new ArrayList<>(); // list of numbers in document
+        while (numberMatcher.find())
+            numbers.add(Long.parseLong(numberMatcher.group(1)));
         if (numbers.size() == 0) // nothing exits
             return -1;
         // From here, calculate the GCD of all numbers in numbers
@@ -470,16 +491,16 @@ public class Q5 {
      * @return The number of words
      */
     private static long countMirrorsInDocument(StringBuilder source, String mirroredCharacter) {
-        long counter = 0;
+        long mirroredCounter = 0;
         String[] words = getWords(source.toString());
         Pattern pattern = Pattern.compile("^(\\d+)" + mirroredCharacter + "(\\d+)$"); // first of string + number + mirroredCharacter + number + last of string
         for (String word : words) { // check each word
             Matcher matcher = pattern.matcher(word);
             while (matcher.find())
                 if (matcher.group(1).equals(matcher.group(2)))
-                    counter++;
+                    mirroredCounter++;
         }
-        return counter;
+        return mirroredCounter;
     }
 
     /**
@@ -489,13 +510,13 @@ public class Q5 {
      * @return The number of alphabetic words
      */
     private static long countAlphabetWordsInDocument(StringBuilder source) {
-        long counter = 0;
+        long alphabeticWordCounter = 0;
         String[] words = getWords(source.toString());
         for (String word : words)
             if (word.matches("[a-zA-Z]+"))
-                counter++;
+                alphabeticWordCounter++;
 
-        return counter;
+        return alphabeticWordCounter;
     }
 
     /**
@@ -508,14 +529,14 @@ public class Q5 {
      * @return The worlds
      */
     private static String[] getWords(String sentence) {
-        ArrayList<String> words = new ArrayList<>(Arrays.asList(sentence.split(" ")));
+        ArrayList<String> wordsList = new ArrayList<>(Arrays.asList(sentence.split(" ")));
         for (int i = sentence.length() - 1; i >= 0; i--) {
             if (sentence.charAt(i) == ' ')
-                words.add("");
+                wordsList.add("");
             else
                 break;
         }
-        String[] wordsArray = new String[words.size()];
-        return words.toArray(wordsArray);
+        String[] wordsArray = new String[wordsList.size()];
+        return wordsList.toArray(wordsArray);
     }
 }
