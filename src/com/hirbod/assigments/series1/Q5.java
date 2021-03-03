@@ -222,7 +222,7 @@ public class Q5 {
         }
         String docName = arguments[1];
         String[] wordsToReplace = arguments[2].split(",");
-        String toReplaceWord = fixDocumentContent(arguments[3]).toString(); // TODO: check fix content
+        String toReplaceWord = arguments[3];
         if (docName.equals("-ALL")) {
             for (Map.Entry<String, StringBuilder> entry : docs.entrySet()) {
                 docName = entry.getKey();
