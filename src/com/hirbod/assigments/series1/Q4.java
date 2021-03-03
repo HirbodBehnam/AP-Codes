@@ -36,25 +36,23 @@ public class Q4 {
     static final int IndexName = 0, IndexIsBot = 1, IndexMessage = 2, IndexDate = 3, IndexLocation = 4;
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        String initialText = scanner.nextLine();
+        final Scanner scanner = new Scanner(System.in);
+        final String initialText = scanner.nextLine();
         // Parse start and end date
         Date startDate, endDate;
-        {
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
-            String startDateString = scanner.nextLine();
-            String endDateString = scanner.nextLine();
-            try {
-                startDate = formatter.parse(startDateString);
-                endDate = formatter.parse(endDateString);
-            } catch (ParseException ex) { // do we even reach here?
-                throw new RuntimeException();
-            }
+        final SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+        final String startDateString = scanner.nextLine();
+        final String endDateString = scanner.nextLine();
+        try {
+            startDate = formatter.parse(startDateString);
+            endDate = formatter.parse(endDateString);
+        } catch (ParseException ex) { // do we even reach here?
+            throw new RuntimeException();
         }
         // Get the location
-        double ourLocation = scanner.nextDouble();
+        final double ourLocation = scanner.nextDouble();
         // Find valid requests
-        ArrayList<String[]> messages = getValidMessages(initialText);
+        final ArrayList<String[]> messages = getValidMessages(initialText);
         // Print messages
         validateAndPrint(messages, startDate, endDate, ourLocation);
     }
@@ -65,15 +63,15 @@ public class Q4 {
      * @param initialText Master string to extract messages from it
      * @return Array of messages. Messages are basically just a String array
      */
-    private static ArrayList<String[]> getValidMessages(String initialText) {
-        ArrayList<String[]> messages = new ArrayList<>();
-        Matcher messageMatcher = MessagePattern.matcher(initialText);
+    private static ArrayList<String[]> getValidMessages(final String initialText) {
+        final ArrayList<String[]> messages = new ArrayList<>();
+        final Matcher messageMatcher = MessagePattern.matcher(initialText);
         while (messageMatcher.find()) {
             // Validate the username
             if (!validUsername(messageMatcher.group(5)))
                 continue;
             // Create the message
-            String[] message = new String[5];
+            final String[] message = new String[5];
             message[IndexMessage] = messageMatcher.group(7);
             message[IndexName] = messageMatcher.group(2) + " " + messageMatcher.group(4);
             message[IndexIsBot] = messageMatcher.group(3);
@@ -92,7 +90,7 @@ public class Q4 {
      * @param endDate   The allowed max date
      * @param location  Our current location
      */
-    private static void validateAndPrint(ArrayList<String[]> messages, Date startDate, Date endDate, double location) {
+    private static void validateAndPrint(final ArrayList<String[]> messages, final Date startDate, final Date endDate, final double location) {
         for (int i = 0; i < messages.size(); i++) {
             if (messages.get(i)[IndexIsBot].equals("true"))
                 i++; // skip next message
@@ -110,9 +108,9 @@ public class Q4 {
      * @param location  Our current location
      * @return True if valid, otherwise false
      */
-    private static boolean validateDateLocation(String[] message, Date startDate, Date endDate, double location) {
+    private static boolean validateDateLocation(final String[] message, final Date startDate, final Date endDate, final double location) {
         // Check the date
-        double messageLocation = Double.parseDouble(message[IndexLocation]);
+        final double messageLocation = Double.parseDouble(message[IndexLocation]);
         if (Math.abs(messageLocation - location) > 1)
             return false;
         // Check the date
@@ -132,9 +130,9 @@ public class Q4 {
      *
      * @param message The message to write it
      */
-    private static void printMessage(String[] message) {
+    private static void printMessage(final String[] message) {
         try {
-            Date messageDate = MessageDateHourFormatParse.parse(message[IndexDate]);
+            final Date messageDate = MessageDateHourFormatParse.parse(message[IndexDate]);
             System.out.println("--------------------\n" +
                     "*" + message[IndexName] + "*\n" +
                     message[IndexMessage] + "\n" +
@@ -151,7 +149,7 @@ public class Q4 {
      * @param username The username to check
      * @return True if valid; Otherwise false
      */
-    private static boolean validUsername(String username) {
+    private static boolean validUsername(final String username) {
         // Empty usernames are valid
         if (username.equals(""))
             return true;

@@ -24,7 +24,7 @@ public class Q3 {
     static char[][] maze;
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        final Scanner scanner = new Scanner(System.in);
         dimensionX = scanner.nextInt() * 2 + 1;
         dimensionY = scanner.nextInt() * 2 + 1;
         int count = scanner.nextInt();
@@ -38,7 +38,7 @@ public class Q3 {
                 for (int j = 1; j < maze[i].length; j += 2)
                     maze[i][j] = notVisitedTile;
             // Start the backtrack
-            backtrack(1, 1);
+            dfsMaze(1, 1);
             // Mark the exit points
             maze[0][1] = 'e';
             maze[maze.length - 1][maze[0].length - 2] = 'e';
@@ -54,8 +54,8 @@ public class Q3 {
      * @param currentX Current x position
      * @param currentY Current y position
      */
-    public static void backtrack(int currentX, int currentY) {
-        ArrayList<int[]> unvisited = new ArrayList<>();
+    public static void dfsMaze(final int currentX, final int currentY) {
+        final ArrayList<int[]> unvisited = new ArrayList<>();
         maze[currentX][currentY] = visitedTile;
         while (true) {
             // Check upper row
@@ -74,13 +74,12 @@ public class Q3 {
             if (unvisited.size() == 0)
                 return;
             // Pick a random one
-            int[] next = unvisited.get(random.nextInt(unvisited.size()));
+            final int[] next = unvisited.get(random.nextInt(unvisited.size()));
             // Remove wall
             maze[(currentX + next[0]) / 2][(currentY + next[1]) / 2] = pathway;
             // Backtrack!
-            backtrack(next[0], next[1]);
-            // Clear array
-            unvisited.clear();
+            dfsMaze(next[0], next[1]);
+            unvisited.clear(); // reset the array
         }
     }
 
@@ -90,7 +89,7 @@ public class Q3 {
      * @param y Y
      * @return True if valid otherwise false
      */
-    public static boolean isValidTile(int x, int y) {
+    public static boolean isValidTile(final int x, final int y) {
         return (x >= 0 && x < dimensionX) && (y >= 0 && y < dimensionY);
     }
 
@@ -100,7 +99,7 @@ public class Q3 {
      * @param y y
      * @return True if we have not visited this tile. Otherwise false
      */
-    public static boolean isNotVisited(int x, int y) {
+    public static boolean isNotVisited(final int x, final int y) {
         return maze[x][y] == notVisitedTile;
     }
 

@@ -77,7 +77,7 @@ public class Q5 {
      *
      * @param arguments The arguments sent to this command
      */
-    private static void handlePrintCommand(String[] arguments) {
+    private static void handlePrintCommand(final String[] arguments) {
         if (arguments.length != 2) {
             System.out.println(InvalidCommand);
             return;
@@ -94,7 +94,7 @@ public class Q5 {
      *
      * @param arguments The arguments sent to this command
      */
-    private static void handleGCDCommand(String[] arguments) {
+    private static void handleGCDCommand(final String[] arguments) {
         if (arguments.length != 2) {
             System.out.println(InvalidCommand);
             return;
@@ -114,7 +114,7 @@ public class Q5 {
      * @param commandRaw The raw arguments user has entered
      * @param arguments  The commands split by whitespace
      */
-    private static void handleFindCommand(String commandRaw, String[] arguments) {
+    private static void handleFindCommand(final String commandRaw, final String[] arguments) {
         if (arguments.length < 4) {
             System.out.println(InvalidCommand);
             return;
@@ -145,7 +145,7 @@ public class Q5 {
      *
      * @param arguments The arguments passed
      */
-    private static void HandleFindAlphabetCommand(String[] arguments) {
+    private static void HandleFindAlphabetCommand(final String[] arguments) {
         if (arguments.length != 4) {
             System.out.println(InvalidCommand);
             return;
@@ -168,7 +168,7 @@ public class Q5 {
      *
      * @param arguments The args passed
      */
-    private static void handleFindMirrorCommand(String[] arguments) {
+    private static void handleFindMirrorCommand(final String[] arguments) {
         if (arguments.length != 4) {
             System.out.println(InvalidCommand);
             return;
@@ -193,7 +193,7 @@ public class Q5 {
      * @param name          The document name
      * @param stringToCheck The string to check if number of repeated times
      */
-    private static void handleFindRepeatCommand(String name, String stringToCheck) {
+    private static void handleFindRepeatCommand(final String name, final String stringToCheck) {
         if (docs.containsKey(name)) {
             int lastIndex = 0;
             int repeatedCounts = 0;
@@ -215,7 +215,7 @@ public class Q5 {
      *
      * @param arguments The args sent to this command
      */
-    private static void handleReplaceCommand(String[] arguments) {
+    private static void handleReplaceCommand(final String[] arguments) {
         if (arguments.length != 4) {
             System.out.println(InvalidCommand);
             return;
@@ -241,7 +241,7 @@ public class Q5 {
      *
      * @param arguments The args sent to this command
      */
-    private static void handleRemoveCommand(String[] arguments) {
+    private static void handleRemoveCommand(final String[] arguments) {
         if (arguments.length < 2) {
             System.out.println(InvalidCommand);
             return;
@@ -274,7 +274,7 @@ public class Q5 {
      *
      * @param arguments The args sent to this command
      */
-    private static void handleRemoveWordCommand(String[] arguments) {
+    private static void handleRemoveWordCommand(final String[] arguments) {
         if (arguments.length != 4) {
             System.out.println(InvalidCommand);
             return;
@@ -299,7 +299,7 @@ public class Q5 {
      *
      * @param arguments The args passed
      */
-    private static void handleAddCommand(String[] arguments) {
+    private static void handleAddCommand(final String[] arguments) {
         if (arguments.length < 2) {
             System.out.println(InvalidCommand);
             return;
@@ -331,7 +331,7 @@ public class Q5 {
      *
      * @param arguments The args passed
      */
-    private static void handleAddWordCommand(String[] arguments) {
+    private static void handleAddWordCommand(final String[] arguments) {
         if (arguments.length != 4) {
             System.out.println(InvalidCommand);
             return;
@@ -398,7 +398,7 @@ public class Q5 {
      * @param replacedWord   The word to be replaced with wordsToReplace
      * @return A new string builder which have it words replaced
      */
-    private static StringBuilder replaceWordInDocument(StringBuilder source, String[] wordsToReplace, String replacedWord) {
+    private static StringBuilder replaceWordInDocument(final StringBuilder source, final String[] wordsToReplace, final String replacedWord) {
         String[] words = getWords(source.toString());
         StringBuilder newDocument = new StringBuilder(source.length());
         for (String toReplaceWord : wordsToReplace) { // for each word search from last and match
@@ -426,7 +426,7 @@ public class Q5 {
      * @param wordToRemove The word to remove from doc
      * @return A "NEW" StringBuilder which have the text without the word
      */
-    private static StringBuilder removeWordInDocument(StringBuilder source, String wordToRemove) {
+    private static StringBuilder removeWordInDocument(final StringBuilder source, final String wordToRemove) {
         String[] words = getWords(source.toString());
         StringBuilder newBuilder = new StringBuilder(source.length());
         for (int i = 0; i < words.length; i++)
@@ -449,7 +449,7 @@ public class Q5 {
      * @param source The doc to check in
      * @return The GCD of numbers. If nothing exists, return -1
      */
-    private static long getGCDOfDocument(StringBuilder source) {
+    private static long getGCDOfDocument(final StringBuilder source) {
         Pattern numberPattern = Pattern.compile("(\\d+)");
         Matcher numberMatcher = numberPattern.matcher(source);
         ArrayList<Long> numbers = new ArrayList<>(); // list of numbers in document
@@ -475,7 +475,7 @@ public class Q5 {
      * @param number2 Second number
      * @return The GCD of them
      */
-    private static long GCD(long number1, long number2) {
+    private static long GCD(final long number1, final long number2) {
         if (number1 == 0)
             return number2;
         if (number2 == 0)
@@ -490,7 +490,7 @@ public class Q5 {
      * @param mirroredCharacter The world which must be mirrored
      * @return The number of words
      */
-    private static long countMirrorsInDocument(StringBuilder source, String mirroredCharacter) {
+    private static long countMirrorsInDocument(final StringBuilder source, final String mirroredCharacter) {
         long mirroredCounter = 0;
         String[] words = getWords(source.toString());
         Pattern pattern = Pattern.compile("^(\\d+)" + mirroredCharacter + "(\\d+)$"); // first of string + number + mirroredCharacter + number + last of string
@@ -509,7 +509,7 @@ public class Q5 {
      * @param source The string builder to check
      * @return The number of alphabetic words
      */
-    private static long countAlphabetWordsInDocument(StringBuilder source) {
+    private static long countAlphabetWordsInDocument(final StringBuilder source) {
         long alphabeticWordCounter = 0;
         String[] words = getWords(source.toString());
         for (String word : words)
@@ -528,7 +528,7 @@ public class Q5 {
      * @param sentence The string to split it
      * @return The worlds
      */
-    private static String[] getWords(String sentence) {
+    private static String[] getWords(final String sentence) {
         ArrayList<String> wordsList = new ArrayList<>(Arrays.asList(sentence.split(" ")));
         for (int i = sentence.length() - 1; i >= 0; i--) {
             if (sentence.charAt(i) == ' ')
